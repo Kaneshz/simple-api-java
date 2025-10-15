@@ -6,8 +6,6 @@ Para executar o projeto em seu ambiente local, você precisa ter o Docker e o Do
 
 Clone o repositório:
 
-
-
     git clone https://github.com/Kaneshz/simple-api-java.git
 
 Navegue até a pasta do projeto:
@@ -98,15 +96,15 @@ Prints do funcionamento
 
 1. Aplicação rodando localmente com Docker Compose:
 
-https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/docker-compose-up.png
+<img src="https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/docker-compose-up.png" alt="Aplicação rodando com Docker Compose">
 
 2. Pipeline do GitHub Actions em execução:
 
-https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/PRINT2.png
+<img src="https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/PRINT2.png" alt="Pipeline do GitHub Actions em execução">
 
 3. Aprovação manual para o deploy de produção:
 
-https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/Print4.png
+<img src="https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/Print4.png" alt="Aprovação manual para deploy">
 
 Tecnologias utilizadas
 Backend: Java 21, Spring Boot 3
