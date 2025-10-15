@@ -1,3 +1,4 @@
+Projeto - Cidades ESGInteligentes
 Este projeto consiste em uma API RESTful desenvolvida em Java com Spring Boot para gerenciar dados relacionados a cidades e seus indicadores ESG. A aplicação é totalmente containerizada com Docker e possui um pipeline de CI/CD automatizado com GitHub Actions.
 
 Como executar localmente com Docker
@@ -5,11 +6,14 @@ Para executar o projeto em seu ambiente local, você precisa ter o Docker e o Do
 
 Clone o repositório:
 
+
+
     git clone https://github.com/Kaneshz/simple-api-java.git
 
 Navegue até a pasta do projeto:
 
     cd simple-api-java
+
 Suba os containers:
 
 O comando a seguir irá construir a imagem da API (se ainda não existir) e iniciar os containers da aplicação e do banco de dados em segundo plano.
@@ -18,14 +22,14 @@ O comando a seguir irá construir a imagem da API (se ainda não existir) e inic
 
 Acesse a aplicação:
 
-A API estará disponível em `http://localhost:8080`. 
-
+A API estará disponível em `http://localhost:8080`. Você pode usar ferramentas como Postman, Insomnia ou o seu navegador para interagir com os endpoints.
 Para parar a execução:
 
     docker-compose down
 
 
 Pipeline CI/CD
+
 O pipeline de Integração Contínua e Deploy Contínuo (CI/CD) foi implementado utilizando GitHub Actions.
 
 Ferramenta: GitHub Actions
@@ -56,6 +60,7 @@ Dockerfile
 Utilizamos um Dockerfile com a estratégia de multi-stage build. Isso nos permite criar uma imagem Docker final muito menor e mais segura, pois ela contém apenas o necessário para executar a aplicação, sem incluir as dependências de compilação do Maven ou o JDK completo.
 
 dockerfile
+
 
 # ESTÁGIO 1: Build
 # Usamos uma imagem com Maven e JDK para compilar o projeto
@@ -88,7 +93,24 @@ EXPOSE 8080
 
 # Comando para iniciar a aplicação quando o container for executado
 ENTRYPOINT ["java", "-jar", "app.jar"]
+Prints do funcionamento
+[SUA TAREFA: Insira aqui os prints de tela]
 
+1. Aplicação rodando localmente com Docker Compose:
+
+(Print do terminal mostrando os logs de docker-compose up com a aplicação iniciada)
+
+2. Exemplo de requisição na API (via Postman/Insomnia):
+
+(Print de uma requisição GET ou POST para um endpoint da sua API, mostrando a resposta com status 200 OK)
+
+3. Pipeline do GitHub Actions em execução:
+
+(Print da aba "Actions" do seu repositório no GitHub, mostrando as etapas do pipeline com os checks verdes)
+
+4. Aprovação manual para o deploy de produção:
+
+(Print da etapa de deploy de produção aguardando por aprovação)
 
 Tecnologias utilizadas
 Backend: Java 21, Spring Boot 3
