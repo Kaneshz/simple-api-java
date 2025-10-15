@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'esg_db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'rootpassword'
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - esg-network
+    # ADICIONE ESTA SEÇÃO DE HEALTHCHECK
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  api:
+    build: .
+    container_name: simple_api
+    restart: always
+    # MODIFIQUE O DEPENDS_ON PARA ESTE FORMATO
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '8080:8080'
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - esg-network
+
+volumes:
+  mysql-data:
+
+networks:
+  esg-network:
+    driver: bridge

@@ -1,0 +1,93 @@
+# Nome do nosso pipeline
+name: Java CI/CD Pipeline
+
+# Gatilho (trigger): Este pipeline vai rodar sempre que houver um push na branch 'main'
+on:
+  push:
+    branches: [ "main" ]
+
+# Variáveis de ambiente que serão usadas em todo o pipeline
+env:
+  # O nome da imagem agora usa o formato do GitHub Container Registry
+  # Ex: ghcr.io/seu-usuario/seu-repositorio
+  GHCR_IMAGE_NAME: ghcr.io/${{ github.repository }}
+  
+jobs:
+  # --------------------------------------------------
+  # ETAPA 1: BUILD & TEST
+  # --------------------------------------------------
+  build-and-test:
+    name: Build, Teste e Push da Imagem
+    runs-on: ubuntu-latest # O pipeline vai rodar em uma máquina virtual com Ubuntu
+
+    # Permissão para que o job possa fazer push de imagens para o GHCR
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # 1. Baixa o código do seu repositório para a máquina virtual
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente Java (JDK 21)
+      - name: Configurar JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # 3. Executa os testes do projeto usando Maven
+      - name: Rodar testes com Maven
+        run: mvn test
+
+      # 4. Faz o login no GitHub Container Registry (GHCR)
+      #    Usa o token automático do GitHub, sem precisar de segredos!
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 5. Constrói a imagem Docker e envia para o GHCR
+      - name: Build e Push da imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.GHCR_IMAGE_NAME }}:latest # A imagem terá a tag 'latest'
+
+  # --------------------------------------------------
+  # ETAPA 2: DEPLOY EM STAGING
+  # --------------------------------------------------
+  deploy-staging:
+    name: Deploy em Staging
+    runs-on: ubuntu-latest
+    needs: build-and-test # Só roda se a etapa 'build-and-test' for bem-sucedida
+
+    steps:
+      - name: Deploy no ambiente de Staging
+        run: echo "Deploying to Staging Environment..."
+        # AQUI ENTRARIAM OS COMANDOS REAIS DE DEPLOY
+        # Ex: ssh para um servidor e rodar 'docker pull' da nova imagem e reiniciar o container.
+        # Por enquanto, vamos apenas simular com uma mensagem.
+
+  # --------------------------------------------------
+  # ETAPA 3: DEPLOY EM PRODUÇÃO
+  # --------------------------------------------------
+  deploy-production:
+    name: Deploy em Produção
+    runs-on: ubuntu-latest
+    needs: deploy-staging # Só roda se o deploy em staging for bem-sucedido
+
+    # Adiciona um ambiente e uma aprovação manual para produção
+    environment:
+      name: production
+      url: http://sua-url-de-producao.com # Coloque a URL da sua aplicação aqui
+
+    steps:
+      - name: Deploy no ambiente de Produção
+        run: echo "Deploying to Production Environment..."
+        # AQUI ENTRARIAM OS COMANDOS REAIS DE DEPLOY PARA PRODUÇÃO
+        # Por enquanto, vamos apenas simular com uma mensagem.

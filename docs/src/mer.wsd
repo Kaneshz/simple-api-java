@@ -1,0 +1,47 @@
+@startuml
+!theme blueprint
+
+title Modelo Entidade - Relacionamento
+footer https://github.com/acnaweb/mvc-rh
+
+entity "funcionarios" as funcionario {
+    *id : number <<generated>>
+    --
+    *nome: string
+    *data_entrada: date
+    *data_saida: date
+    *salario: decimal
+    *cargo_id : number <<FK>> 
+    endereco_id : number <<FK>>  
+}
+entity "enderecos" as endereco {
+    *id : number <<generated>>
+    --
+    *bairro: text
+    *cep: text
+    *cidade: text
+    complemento: text
+    logradouro: text
+    numero: text
+    uf: enum
+}
+
+entity "cargos" as cargo {
+    *id : number <<generated>>
+    --
+    *nome: string
+    *departamento_id : number <<FK>>  
+}
+
+
+entity "departamentos" as departamento {
+    *id : number <<generated>>
+    --
+    *nome: text
+}
+
+funcionario }o..o| endereco
+funcionario }o..|| cargo
+departamento ||..o{ cargo
+
+@enduml
