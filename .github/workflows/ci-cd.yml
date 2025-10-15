@@ -10,8 +10,9 @@ on:
 env:
   # O nome da imagem agora usa o formato do GitHub Container Registry
   # Ex: ghcr.io/seu-usuario/seu-repositorio
-  GHCR_IMAGE_NAME: ghcr.io/${{ github.repository }}
-  
+  # A correção ${{ github.repository_owner,, }} força o nome do usuário para minúsculo.
+  GHCR_IMAGE_NAME: ghcr.io/${{ github.repository_owner,, }}/${{ github.event.repository.name }}
+
 jobs:
   # --------------------------------------------------
   # ETAPA 1: BUILD & TEST
@@ -19,7 +20,6 @@ jobs:
   build-and-test:
     name: Build, Teste e Push da Imagem
     runs-on: ubuntu-latest # O pipeline vai rodar em uma máquina virtual com Ubuntu
-
     # Permissão para que o job possa fazer push de imagens para o GHCR
     permissions:
       contents: read
@@ -65,7 +65,6 @@ jobs:
     name: Deploy em Staging
     runs-on: ubuntu-latest
     needs: build-and-test # Só roda se a etapa 'build-and-test' for bem-sucedida
-
     steps:
       - name: Deploy no ambiente de Staging
         run: echo "Deploying to Staging Environment..."
@@ -80,12 +79,10 @@ jobs:
     name: Deploy em Produção
     runs-on: ubuntu-latest
     needs: deploy-staging # Só roda se o deploy em staging for bem-sucedido
-
     # Adiciona um ambiente e uma aprovação manual para produção
     environment:
       name: production
       url: http://sua-url-de-producao.com # Coloque a URL da sua aplicação aqui
-
     steps:
       - name: Deploy no ambiente de Produção
         run: echo "Deploying to Production Environment..."
