@@ -98,15 +98,15 @@ Prints do funcionamento
 
 1. Aplicação rodando localmente com Docker Compose:
 
-docker-compose-up.png
+https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/docker-compose-up.png
 
 2. Pipeline do GitHub Actions em execução:
 
-PRINT2.png
+https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/PRINT2.png
 
 3. Aprovação manual para o deploy de produção:
 
-Print4.png
+https://raw.githubusercontent.com/Kaneshz/simple-api-java/main/assets/images/Print4.png
 
 Tecnologias utilizadas
 Backend: Java 21, Spring Boot 3
