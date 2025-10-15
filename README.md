@@ -98,19 +98,15 @@ Prints do funcionamento
 
 1. Aplicação rodando localmente com Docker Compose:
 
-(Print do terminal mostrando os logs de docker-compose up com a aplicação iniciada)
+docker-compose-up.png
 
-2. Exemplo de requisição na API (via Postman/Insomnia):
+2. Pipeline do GitHub Actions em execução:
 
-(Print de uma requisição GET ou POST para um endpoint da sua API, mostrando a resposta com status 200 OK)
+PRINT2.png
 
-3. Pipeline do GitHub Actions em execução:
+3. Aprovação manual para o deploy de produção:
 
-(Print da aba "Actions" do seu repositório no GitHub, mostrando as etapas do pipeline com os checks verdes)
-
-4. Aprovação manual para o deploy de produção:
-
-(Print da etapa de deploy de produção aguardando por aprovação)
+Print4.png
 
 Tecnologias utilizadas
 Backend: Java 21, Spring Boot 3
