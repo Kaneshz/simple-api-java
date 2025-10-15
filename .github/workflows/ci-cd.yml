@@ -1,5 +1,5 @@
 # Nome do nosso pipeline
-name: Java CI/CD - Build e Push da Imagem
+name: Java CI/CD - Build, Push e Deploy
 
 # Gatilho (trigger): Este pipeline vai rodar sempre que houver um push na branch 'main'
 on:
@@ -12,41 +12,37 @@ env:
   GHCR_IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
-  # Job único para construir, testar e publicar a imagem
+  # --------------------------------------------------
+  # JOB 1: Constrói e publica a imagem
+  # --------------------------------------------------
   build-and-push-image:
     name: Build, Teste e Push da Imagem
-    runs-on: ubuntu-latest # O pipeline vai rodar em uma máquina virtual com Ubuntu
-
-    # Permissões essenciais para:
-    #   - contents: read -> Para poder baixar seu código.
-    #   - packages: write -> Para poder enviar (push) a imagem para o GitHub Packages.
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
     steps:
-      # 1. Baixa o código do seu repositório para a máquina virtual
+      # 1. Baixa o código do seu repositório
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # 2. Configura o ambiente Java (JDK 21) para rodar os testes
+      # 2. Configura o ambiente Java (JDK 21)
       - name: Configurar JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      # 3. Executa os testes do projeto usando Maven
+      # 3. Executa os testes do projeto
       - name: Rodar testes com Maven
         run: mvn test
 
       # 4. Normaliza o nome da imagem para letras minúsculas (obrigatório)
-      #    Este passo corrige o problema do seu usuário "Kaneshz" ter letra maiúscula.
       - name: Normalizar nome da imagem para lowercase
         run: echo "GHCR_IMAGE_NAME_LC=$(echo ${{ env.GHCR_IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       # 5. Faz o login no GitHub Container Registry (ghcr.io)
-      #    Usa um token automático e seguro do próprio GitHub.
       - name: Login no GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -55,10 +51,27 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # 6. Constrói a imagem Docker e envia para o GitHub Container Registry
-      #    Usa a variável com o nome corrigido (em minúsculas).
       - name: Build e Push da imagem Docker
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ${{ env.GHCR_IMAGE_NAME_LC }}:latest
+
+  # --------------------------------------------------
+  # JOB 2: Deploy em Produção (com aprovação manual)
+  # --------------------------------------------------
+  deploy-production:
+    name: Deploy em Produção
+    runs-on: ubuntu-latest
+    # 'needs' garante que este job só rode se o 'build-and-push-image' for bem-sucedido
+    needs: build-and-push-image
+
+    # Aponta para o ambiente 'production', que você configurou para exigir aprovação
+    environment:
+      name: production
+      url: https://github.com/${{ github.repository }}
+
+    steps:
+      - name: Deploy no ambiente de Produção
+        run: echo "Deploying to Production Environment after approval..."
