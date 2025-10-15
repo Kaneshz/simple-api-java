@@ -1,26 +1,25 @@
 # Nome do nosso pipeline
-name: Java CI/CD Pipeline
+name: Java CI/CD - Build e Push da Imagem
 
 # Gatilho (trigger): Este pipeline vai rodar sempre que houver um push na branch 'main'
 on:
   push:
     branches: [ "main" ]
 
-# Variáveis de ambiente que serão usadas em todo o pipeline
+# Variáveis de ambiente
 env:
-  # O nome da imagem agora usa o formato do GitHub Container Registry
-  # Ex: ghcr.io/seu-usuario/seu-repositorio
-  # CORREÇÃO: Usando a função toLower() para garantir que o nome do usuário seja minúsculo.
-  GHCR_IMAGE_NAME: ghcr.io/${{ toLower(github.repository_owner) }}/${{ github.event.repository.name }}
+  # Define o nome da imagem usando o formato do GitHub: ghcr.io/SEU_USUARIO/NOME_DO_REPO
+  GHCR_IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
-  # --------------------------------------------------
-  # ETAPA 1: BUILD & TEST
-  # --------------------------------------------------
-  build-and-test:
+  # Job único para construir, testar e publicar a imagem
+  build-and-push-image:
     name: Build, Teste e Push da Imagem
     runs-on: ubuntu-latest # O pipeline vai rodar em uma máquina virtual com Ubuntu
-    # Permissão para que o job possa fazer push de imagens para o GHCR
+
+    # Permissões essenciais para:
+    #   - contents: read -> Para poder baixar seu código.
+    #   - packages: write -> Para poder enviar (push) a imagem para o GitHub Packages.
     permissions:
       contents: read
       packages: write
@@ -30,7 +29,7 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # 2. Configura o ambiente Java (JDK 21)
+      # 2. Configura o ambiente Java (JDK 21) para rodar os testes
       - name: Configurar JDK 21
         uses: actions/setup-java@v4
         with:
@@ -41,8 +40,13 @@ jobs:
       - name: Rodar testes com Maven
         run: mvn test
 
-      # 4. Faz o login no GitHub Container Registry (GHCR)
-      #    Usa o token automático do GitHub, sem precisar de segredos!
+      # 4. Normaliza o nome da imagem para letras minúsculas (obrigatório)
+      #    Este passo corrige o problema do seu usuário "Kaneshz" ter letra maiúscula.
+      - name: Normalizar nome da imagem para lowercase
+        run: echo "GHCR_IMAGE_NAME_LC=$(echo ${{ env.GHCR_IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      # 5. Faz o login no GitHub Container Registry (ghcr.io)
+      #    Usa um token automático e seguro do próprio GitHub.
       - name: Login no GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -50,41 +54,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Constrói a imagem Docker e envia para o GHCR
+      # 6. Constrói a imagem Docker e envia para o GitHub Container Registry
+      #    Usa a variável com o nome corrigido (em minúsculas).
       - name: Build e Push da imagem Docker
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ env.GHCR_IMAGE_NAME }}:latest # A imagem terá a tag 'latest'
-
-  # --------------------------------------------------
-  # ETAPA 2: DEPLOY EM STAGING
-  # --------------------------------------------------
-  deploy-staging:
-    name: Deploy em Staging
-    runs-on: ubuntu-latest
-    needs: build-and-test # Só roda se a etapa 'build-and-test' for bem-sucedida
-    steps:
-      - name: Deploy no ambiente de Staging
-        run: echo "Deploying to Staging Environment..."
-        # AQUI ENTRARIAM OS COMANDOS REAIS DE DEPLOY
-        # Ex: ssh para um servidor e rodar 'docker pull' da nova imagem e reiniciar o container.
-        # Por enquanto, vamos apenas simular com uma mensagem.
-
-  # --------------------------------------------------
-  # ETAPA 3: DEPLOY EM PRODUÇÃO
-  # --------------------------------------------------
-  deploy-production:
-    name: Deploy em Produção
-    runs-on: ubuntu-latest
-    needs: deploy-staging # Só roda se o deploy em staging for bem-sucedido
-    # Adiciona um ambiente e uma aprovação manual para produção
-    environment:
-      name: production
-      url: http://sua-url-de-producao.com # Coloque a URL da sua aplicação aqui
-    steps:
-      - name: Deploy no ambiente de Produção
-        run: echo "Deploying to Production Environment..."
-        # AQUI ENTRARIAM OS COMANDOS REAIS DE DEPLOY PARA PRODUÇÃO
-        # Por enquanto, vamos apenas simular com uma mensagem.
+          tags: ${{ env.GHCR_IMAGE_NAME_LC }}:latest
